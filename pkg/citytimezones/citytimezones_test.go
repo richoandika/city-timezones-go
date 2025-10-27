@@ -161,3 +161,76 @@ func (th *TestHelper) AssertNil(value interface{}, message string) {
 		th.t.Errorf("%s: expected nil value, got %v", message, value)
 	}
 }
+
+func TestPublicAPI_Cache(t *testing.T) {
+	th := NewTestHelper(t)
+
+	t.Run("ClearCache", func(t *testing.T) {
+		// Perform some lookups to populate cache
+		_, err := LookupViaCity("Chicago")
+		th.AssertNoError(err, "should not error")
+
+		// Clear the cache
+		ClearCache()
+
+		// Cache size should be 0 after clear
+		size := CacheSize()
+		th.AssertEqual(0, size, "cache should be empty after clear")
+	})
+
+	t.Run("CacheSize", func(t *testing.T) {
+		// Clear first
+		ClearCache()
+
+		// Initial size should be 0
+		size := CacheSize()
+		th.AssertEqual(0, size, "initial cache size should be 0")
+
+		// Perform a lookup
+		_, err := LookupViaCity("Paris")
+		th.AssertNoError(err, "should not error")
+
+		// Cache size should increase
+		size = CacheSize()
+		th.AssertEqual(true, size > 0, "cache size should increase after lookup")
+	})
+
+	t.Run("CacheMaxSize", func(t *testing.T) {
+		maxSize := CacheMaxSize()
+		th.AssertEqual(true, maxSize > 0, "max cache size should be positive")
+		th.AssertEqual(1000, maxSize, "default max cache size should be 1000")
+	})
+
+	t.Run("GetCacheStats", func(t *testing.T) {
+		// Clear cache first
+		ClearCache()
+
+		// Perform some lookups
+		_, err := LookupViaCity("London")
+		th.AssertNoError(err, "should not error")
+
+		// Same lookup again (should hit cache)
+		_, err = LookupViaCity("London")
+		th.AssertNoError(err, "should not error")
+
+		// Get stats
+		stats := GetCacheStats()
+
+		// Verify stats structure
+		th.AssertEqual(true, stats.Size > 0, "stats should show entries")
+		th.AssertEqual(true, stats.MaxSize > 0, "stats should show max size")
+		th.AssertEqual(true, stats.Hits > 0, "stats should show hits")
+		th.AssertEqual(true, stats.HitRate >= 0 && stats.HitRate <= 100, "hit rate should be between 0 and 100")
+	})
+
+	t.Run("CacheStats type", func(t *testing.T) {
+		var stats CacheStats
+		// Verify CacheStats is properly aliased
+		th.AssertEqual(0, stats.Size, "CacheStats should be properly aliased")
+		th.AssertEqual(0, stats.MaxSize, "CacheStats should have MaxSize field")
+		th.AssertEqual(uint64(0), stats.Hits, "CacheStats should have Hits field")
+		th.AssertEqual(uint64(0), stats.Misses, "CacheStats should have Misses field")
+		th.AssertEqual(uint64(0), stats.Evictions, "CacheStats should have Evictions field")
+		th.AssertEqual(0.0, stats.HitRate, "CacheStats should have HitRate field")
+	})
+}

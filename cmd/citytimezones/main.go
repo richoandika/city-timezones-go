@@ -11,6 +11,13 @@ import (
 	"github.com/richoandika/city-timezones-go/pkg/citytimezones"
 )
 
+// Version information (set during build by GoReleaser)
+var (
+	version = "dev"
+	commit  = "none"
+	date    = "unknown"
+)
+
 func main() {
 	var (
 		cityName     = flag.String("city", "", "Search by city name")
@@ -20,10 +27,16 @@ func main() {
 		country      = flag.String("country", "", "Filter by country")
 		output       = flag.String("output", "table", "Output format: table, json")
 		limit        = flag.Int("limit", 10, "Limit number of results")
+		versionFlag  = flag.Bool("version", false, "Show version information")
 		help         = flag.Bool("help", false, "Show help")
 	)
 
 	flag.Parse()
+
+	if *versionFlag {
+		showVersion()
+		return
+	}
 
 	if *help {
 		showHelp()
@@ -75,6 +88,15 @@ func main() {
 	}
 }
 
+func showVersion() {
+	fmt.Printf("City Timezones Go\n")
+	fmt.Printf("Version:    %s\n", version)
+	fmt.Printf("Commit:     %s\n", commit)
+	fmt.Printf("Build Date: %s\n", date)
+	fmt.Println()
+	fmt.Println("https://github.com/richoandika/city-timezones-go")
+}
+
 func showHelp() {
 	fmt.Println("City Timezones Go - Command Line Tool")
 	fmt.Println("====================================")
@@ -101,10 +123,15 @@ func showHelp() {
 	fmt.Println("        Output format: table, json (default: table)")
 	fmt.Println("  -limit int")
 	fmt.Println("        Limit number of results (default: 10)")
+	fmt.Println()
+	fmt.Println("Other Options:")
+	fmt.Println("  -version")
+	fmt.Println("        Show version information")
 	fmt.Println("  -help")
 	fmt.Println("        Show this help message")
 	fmt.Println()
 	fmt.Println("Examples:")
+	fmt.Println("  citytimezones -version")
 	fmt.Println("  citytimezones -city Chicago")
 	fmt.Println("  citytimezones -search 'springfield mo'")
 	fmt.Println("  citytimezones -iso DE -limit 5")

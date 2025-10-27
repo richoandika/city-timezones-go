@@ -40,3 +40,26 @@ func GetCityMapping() ([]CityData, error) {
 func DefaultSearchOptions() SearchOptions {
 	return city.DefaultSearchOptions()
 }
+
+// CacheStats contains cache performance statistics
+type CacheStats = city.CacheStats
+
+// ClearCache clears the global search cache
+func ClearCache() {
+	city.ClearCache()
+}
+
+// CacheSize returns the current number of entries in the cache
+func CacheSize() int {
+	return city.CacheSize()
+}
+
+// CacheMaxSize returns the maximum number of entries the cache can hold
+func CacheMaxSize() int {
+	return city.CacheMaxSize()
+}
+
+// GetCacheStats returns performance statistics about the cache
+func GetCacheStats() CacheStats {
+	return city.CacheStatistics()
+}
