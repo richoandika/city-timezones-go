@@ -1,6 +1,4 @@
-<div align="center">
-
-# 🌍 City Timezones Go
+# City Timezones Go
 
 [![Go Reference](https://pkg.go.dev/badge/github.com/richoandika/city-timezones-go.svg)](https://pkg.go.dev/github.com/richoandika/city-timezones-go)
 [![Go Report Card](https://goreportcard.com/badge/github.com/richoandika/city-timezones-go)](https://goreportcard.com/report/github.com/richoandika/city-timezones-go)
@@ -8,42 +6,51 @@
 [![Coverage](https://codecov.io/gh/richoandika/city-timezones-go/branch/main/graph/badge.svg)](https://codecov.io/gh/richoandika/city-timezones-go)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Go Version](https://img.shields.io/badge/Go-1.21%2B-blue.svg)](https://golang.org/)
-[![Release](https://img.shields.io/github/release/richoandika/city-timezones-go.svg)](https://github.com/richoandika/city-timezones-go/releases)
 
-**A high-performance Go library for city timezone lookups**
+A high-performance, thread-safe Go library for city timezone lookups with comprehensive coverage of 7,326 cities worldwide.
 
-7,326 cities • Zero dependencies • Thread-safe • 96.2% test coverage
+## Table of Contents
 
-[Features](#features) • [Installation](#installation) • [Quick Start](#quick-start) • [Documentation](#documentation) • [Contributing](#contributing)
-
-</div>
-
----
+- [Overview](#overview)
+- [Features](#features)
+- [Installation](#installation)
+- [Quick Start](#quick-start)
+- [Usage](#usage)
+  - [Basic Lookups](#basic-lookups)
+  - [Advanced Searches](#advanced-searches)
+  - [Cache Management](#cache-management)
+- [CLI Tool](#cli-tool)
+- [Performance](#performance)
+- [Documentation](#documentation)
+- [Examples](#examples)
+- [Contributing](#contributing)
+- [License](#license)
+- [Acknowledgments](#acknowledgments)
 
 ## Overview
 
-City Timezones Go is a fast, efficient Go library for looking up timezone information by city name. It provides multiple search strategies including exact matching, partial matching, and ISO code lookups with a simple, intuitive API.
+City Timezones Go provides fast and efficient timezone information lookups by city name, supporting multiple search strategies including exact matching, partial matching, and ISO code queries. Built with performance and reliability in mind, it features zero external dependencies, comprehensive test coverage, and full thread safety.
 
-> **Note:** This is a Go port of the [city-timezones](https://github.com/kevinroberts/city-timezones) JavaScript library by [Kevin Roberts](https://github.com/kevinroberts), delivering **10x performance improvements** and full type safety.
+This library is a Go port of the [city-timezones](https://github.com/kevinroberts/city-timezones) JavaScript library by Kevin Roberts, offering significant performance improvements and compile-time type safety.
 
 ## Features
 
-| Feature | Description |
-|---------|-------------|
-| 🔍 **Multiple Search Strategies** | Exact match, partial matching, ISO code lookups |
-| ⚡ **High Performance** | LRU caching, lazy loading, 10x faster than JavaScript |
-| 🔒 **Thread-Safe** | Full concurrent access support with proper synchronization |
-| 🛡️ **Security First** | Input validation, XSS prevention, injection protection |
-| 📦 **Zero Dependencies** | No external packages required |
-| 🧪 **Well-Tested** | 96.2% test coverage with race condition testing |
-| 🌐 **Comprehensive Data** | 7,326 cities with timezone information |
-| 🖥️ **CLI Tool** | Command-line interface included |
+- **Multiple Search Strategies**: Exact match, partial matching, and ISO code lookups
+- **High Performance**: LRU caching with lazy loading, optimized for speed
+- **Thread-Safe**: Full concurrent access support with proper synchronization
+- **Security Hardened**: Input validation, XSS prevention, and injection protection
+- **Zero Dependencies**: No external packages required
+- **Well Tested**: 96.2% test coverage including race condition testing
+- **Comprehensive Dataset**: 7,326 cities with accurate timezone information
+- **CLI Tool**: Command-line interface for interactive queries
 
 ## Installation
 
 ```bash
 go get github.com/richoandika/city-timezones-go
 ```
+
+**Requirements**: Go 1.21 or higher
 
 ## Quick Start
 
@@ -58,7 +65,6 @@ import (
 )
 
 func main() {
-    // Look up a city by name
     cities, err := citytimezones.LookupViaCity("Chicago")
     if err != nil {
         log.Fatal(err)
@@ -73,164 +79,163 @@ func main() {
 }
 ```
 
-## Core API
+## Usage
 
-### Search Functions
+### Basic Lookups
 
 ```go
 // Exact city name match (case-insensitive)
 cities, err := citytimezones.LookupViaCity("Chicago")
 
-// Partial matching across multiple fields
+// Partial matching across city, state, and province
 cities, err := citytimezones.FindFromCityStateProvince("springfield mo")
 
 // Search by ISO2 or ISO3 country codes
 cities, err := citytimezones.FindFromIsoCode("DE")
 
-// Advanced search with options
+// Retrieve all cities
+allCities, err := citytimezones.GetCityMapping()
+```
+
+### Advanced Searches
+
+```go
+// Configure search options
 options := citytimezones.SearchOptions{
     CaseSensitive: true,
     ExactMatch:    false,
 }
-cities, err := citytimezones.SearchCities("Chicago", options)
 
-// Get all cities
-allCities, err := citytimezones.GetCityMapping()
+cities, err := citytimezones.SearchCities("Chicago", options)
+if err != nil {
+    log.Fatal(err)
+}
+
+for _, city := range cities {
+    fmt.Printf("%s, %s (%s)\n", city.City, city.Country, city.Timezone)
+}
 ```
 
 ### Cache Management
 
 ```go
-// Get cache statistics
+// Retrieve cache statistics
 stats := citytimezones.GetCacheStats()
-fmt.Printf("Hit rate: %.2f%%\n", stats.HitRate)
+fmt.Printf("Cache hit rate: %.2f%%\n", stats.HitRate)
+fmt.Printf("Total hits: %d\n", stats.Hits)
+fmt.Printf("Total misses: %d\n", stats.Misses)
 
-// Check cache size
+// Check current cache size
 size := citytimezones.CacheSize()
+fmt.Printf("Cached entries: %d\n", size)
 
-// Clear cache if needed
+// Clear cache when needed
 citytimezones.ClearCache()
 ```
 
 ## CLI Tool
 
+Install the command-line tool:
+
 ```bash
-# Install
 go install github.com/richoandika/city-timezones-go/cmd/citytimezones@latest
+```
 
-# Or build from source
+Or build from source:
+
+```bash
 make build
+```
 
-# Search for a city
+### CLI Examples
+
+```bash
+# Search for a specific city
 citytimezones -city Chicago
 
-# Search with partial matching
+# Partial search with multiple keywords
 citytimezones -search "springfield mo"
 
-# Search by ISO code
+# Search by ISO country code
 citytimezones -iso DE -limit 5
 
-# Output as JSON
+# Output results as JSON
 citytimezones -city Tokyo -output json
 
-# Show version
+# Display version information
 citytimezones -version
 ```
 
 ## Performance
 
-City Timezones Go is highly optimized:
+City Timezones Go delivers exceptional performance:
 
-- **10x faster** than the JavaScript version
-- **7.5x less memory** usage (~2MB vs ~15MB)
-- **Microsecond lookups** with caching (<100µs)
-- **Thread-safe** with minimal lock contention
+- **10x faster** than the original JavaScript implementation
+- **7.5x lower memory footprint** (~2MB vs ~15MB)
+- **Sub-100µs lookups** with LRU caching enabled
+- **Thread-safe operations** with minimal lock contention
 
-See [PERFORMANCE.md](docs/PERFORMANCE.md) for detailed benchmarks.
+For detailed benchmarks and optimization guidelines, see [PERFORMANCE.md](docs/PERFORMANCE.md).
 
 ## Documentation
 
-| Document | Description |
-|----------|-------------|
-| [API Reference](docs/API.md) | Complete API documentation |
-| [FAQ](docs/FAQ.md) | Frequently asked questions |
-| [Performance Guide](docs/PERFORMANCE.md) | Benchmarks and optimization tips |
-| [Development Guide](docs/DEVELOPMENT.md) | Contributing and development workflow |
-| [Roadmap](docs/ROADMAP.md) | Feature roadmap and future plans |
-| [Examples](examples/) | Runnable code examples |
+Comprehensive documentation is available in the `docs/` directory:
+
+- [API Reference](docs/API.md) - Complete API documentation with examples
+- [Performance Guide](docs/PERFORMANCE.md) - Benchmarks and optimization techniques
+- [Development Guide](docs/DEVELOPMENT.md) - Contributing and development workflow
+- [FAQ](docs/FAQ.md) - Frequently asked questions
+- [Roadmap](docs/ROADMAP.md) - Future features and planned improvements
 
 ## Examples
 
-Check out the [`examples/`](examples/) directory for more:
+The [`examples/`](examples/) directory contains practical code samples:
 
-- **[Basic Usage](examples/basic/)** - Simple lookups and searches
-- **[Advanced Usage](examples/advanced/)** - Concurrent access, caching, error handling
-- **[CLI Usage](examples/cli/)** - Command-line examples
+- [Basic Usage](examples/basic/) - Simple lookups and search operations
+- [Advanced Usage](examples/advanced/) - Concurrent access, caching strategies, error handling
+- [CLI Usage](examples/cli/) - Command-line interface examples
 
 ## Contributing
 
-We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
+Contributions are welcome! Please read our [Contributing Guide](CONTRIBUTING.md) before submitting pull requests.
 
-Quick start:
+### Development Setup
+
 ```bash
-# Clone and setup
+# Clone the repository
 git clone https://github.com/richoandika/city-timezones-go.git
 cd city-timezones-go
+
+# Install dependencies
 go mod download
 
 # Run tests
 make test
 
-# Build
+# Build the project
 make build
 ```
 
-See [DEVELOPMENT.md](docs/DEVELOPMENT.md) for detailed development instructions.
-
-## Support
-
-| Type | Link |
-|------|------|
-| 📖 **Documentation** | [docs/](docs/) |
-| 🐛 **Bug Reports** | [Issues](https://github.com/richoandika/city-timezones-go/issues) |
-| 💡 **Feature Requests** | [Issues](https://github.com/richoandika/city-timezones-go/issues) |
-| 💬 **Discussions** | [Discussions](https://github.com/richoandika/city-timezones-go/discussions) |
-| 🔒 **Security** | [SECURITY.md](SECURITY.md) |
+For detailed development instructions, see [DEVELOPMENT.md](docs/DEVELOPMENT.md).
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## Attribution
-
-This library is a Go port of the original [city-timezones](https://github.com/kevinroberts/city-timezones) JavaScript library created by [Kevin Roberts](https://github.com/kevinroberts).
-
-### Key Improvements
-
-- ⚡ 10x faster execution
-- 💾 7.5x less memory usage
-- 🔒 Compile-time type safety
-- 🧵 Full thread-safe operations
-- 🧪 96.2% test coverage
-- 📦 Zero dependencies
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
 ## Acknowledgments
 
-- **[Kevin Roberts](https://github.com/kevinroberts)** - Original JavaScript library author
-- **Go Community** - For excellent tooling and standards
-- **Contributors** - All who help improve this project
+This library is a Go port of the [city-timezones](https://github.com/kevinroberts/city-timezones) JavaScript library created by Kevin Roberts. The Go implementation introduces significant performance improvements, type safety, and thread-safe operations while maintaining compatibility with the original dataset.
+
+Special thanks to:
+
+- **Kevin Roberts** - Original JavaScript library author
+- **Go Community** - For excellent tooling and development standards
+- **All Contributors** - For their valuable contributions to this project
 
 ---
 
-<div align="center">
+**Project Status**: Active maintenance and development
 
-**Made with ❤️ for the Go community**
+For bug reports and feature requests, please use the [GitHub Issues](https://github.com/richoandika/city-timezones-go/issues) page.
 
-If you find this library useful, please consider giving it a ⭐
-
-![Code Size](https://img.shields.io/github/languages/code-size/richoandika/city-timezones-go)
-![Last Commit](https://img.shields.io/github/last-commit/richoandika/city-timezones-go)
-
-[⬆ Back to Top](#-city-timezones-go)
-
-</div>
+For security vulnerabilities, see our [Security Policy](SECURITY.md).
